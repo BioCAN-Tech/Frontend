@@ -6,6 +6,7 @@ import AssessmentCard from './components/AssessmentScreen';
 import QuestionnaireScreen from './components/QuestionnaireScreen';
 import Question1 from './components/Question1';
 import AssessmentOnboardingCard from './components/AssessmentOnboardingCard';
+import PostCardFlipper from './components/PostCardFlipper';
 
 
 function App() {
@@ -20,13 +21,15 @@ function App() {
   if (screen === 'splash') return <SplashScreen />;
 
   return (
-    <Routes>
-  <Route path="/" element={<WelcomeScreen setUser={setUser} />} />
-  <Route path="/assessment" element={<AssessmentCard userName={user?.name} />} />
-  <Route path="/questionnaire" element={<QuestionnaireScreen />} />
-  <Route path="/question1" element={<Question1 />} />
-  <Route path="/assessmentonboardingcard" element={<AssessmentOnboardingCard/>} />
-</Routes>
+
+    <PostCardFlipper/>
+//     <Routes>
+//   <Route path="/" element={<WelcomeScreen setUser={setUser} />} />
+//   <Route path="/assessment" element={<AssessmentCard userName={user?.name} />} />
+//   <Route path="/questionnaire" element={<QuestionnaireScreen />} />
+//   <Route path="/question1" element={<Question1 />} />
+//   <Route path="/assessmentonboardingcard" element={<AssessmentOnboardingCard/>} />
+// </Routes>
   );
 }
 

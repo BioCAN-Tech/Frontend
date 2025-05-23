@@ -56,7 +56,7 @@ const AssessmentOnboardingCard = () => {
           size="large"
           sx={{
             mt: 2,
-            backgroundColor: '#ffb300', // Amber color for the button
+            backgroundColor: 'transparent', // Amber color for the button
             color: '#000000', // Black text color
             fontWeight: 'bold',
             '&:hover': {
