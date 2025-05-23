@@ -1,8 +1,15 @@
 import React from 'react';
 import { Card, CardContent, Typography, Box, Button, useTheme } from '@mui/material';
+import { useNavigate } from "react-router-dom";
 
 const AssessmentOnboardingCard = () => {
-  const theme = useTheme(); // Access the theme object
+  const theme = useTheme();
+  const navigate = useNavigate();
+  const userName = "User"; // Replace with actual user name if needed
+    const handleNext = () => {
+    navigate("/quizscreen", { state: { userName } });
+  };
+
 
   return (
     <Box
@@ -52,12 +59,13 @@ const AssessmentOnboardingCard = () => {
         </Box>
 
         <Button
+          onClick={handleNext}  
           variant="contained"
           size="large"
           sx={{
             mt: 2,
             backgroundColor: 'transparent', // Amber color for the button
-            color: '#000000', // Black text color
+            color: '#fff', // Black text color
             fontWeight: 'bold',
             '&:hover': {
               backgroundColor: '#ffa000', // Darker amber on hover

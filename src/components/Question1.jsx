@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom"; // Corrected import
 import {
   Box,
   Typography,
@@ -36,6 +36,9 @@ export default function Question1() {
   const [isTypingQuestion3, setIsTypingQuestion3] = useState(false);
   const [question2Text, setQuestion2Text] = useState("");
   const [question3Text, setQuestion3Text] = useState("");
+  const [isTypingThankYou, setIsTypingThankYou] = useState(false); // New state for thank you typing
+  const [thankYouText, setThankYouText] = useState(""); // New state for thank you message text
+  const [showAssessmentButton, setShowAssessmentButton] = useState(false); // New state to control button display
 
   const handleInfoClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -59,7 +62,9 @@ export default function Question1() {
     setTypingBubbleText(""); // Initial typing text
     setShowQuestion3(false); // Ensure Q3 is hidden if Q2 is answered again
     setIdentifiedAs(""); // Clear Q3 answer if Q2 is answered again
-    setShowThankYou(false);
+    setShowThankYou(false); // Hide thank you message if Q2 is answered again
+    setIsTypingThankYou(false); // Reset thank you typing
+    setShowAssessmentButton(false); // Reset assessment button visibility
 
     // Simulate typing delay for Q2 answer
     setTimeout(() => {
@@ -78,12 +83,17 @@ export default function Question1() {
   const handleIdentifySelf = (value) => {
     setIdentifiedAs(""); // Clear previous selection
     setIsTypingIdentifiedAs(true);
+    setShowThankYou(false); // Hide thank you message while typing Q3 answer
+    setIsTypingThankYou(false); // Reset thank you typing
+    setShowAssessmentButton(false); // Reset assessment button visibility
 
     setTimeout(() => {
       setIsTypingIdentifiedAs(false);
       setIdentifiedAs(value);
+      // Set showThankYou to true immediately before starting typing animation
       setShowThankYou(true);
-    }, 1500); // Adjust delay as needed
+      setIsTypingThankYou(true); // Trigger thank you typing
+    }, 1500); // Adjust delay as needed for Q3 answer
   };
 
   useEffect(() => {
@@ -110,6 +120,31 @@ export default function Question1() {
     }, 40);
     return () => clearInterval(interval);
   }, [definedAs]);
+
+  // Effect for typing the thank you message
+  useEffect(() => {
+    let interval;
+    if (isTypingThankYou) {
+      const fullText = ` Thank you ${userName}, let’s begin with the assessment and also click on the info icon if you want to learn more about it.`;
+      let index = 0;
+      setThankYouText(""); // Clear text only when starting to type
+      interval = setInterval(() => {
+        setThankYouText((prev) => prev + fullText.charAt(index));
+        index++;
+        if (index === fullText.length) {
+          clearInterval(interval);
+          setIsTypingThankYou(false); // Stop typing animation
+          setShowAssessmentButton(true); // Show the assessment button after typing
+        }
+      }, 30); // Typing speed for thank you message
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isTypingThankYou, userName]);
 
   return (
     <Box
@@ -190,7 +225,7 @@ export default function Question1() {
         </Typography>
 
         {/* Question 2 */}
-        <Typography variant="body2">2. What defines you?</Typography>
+        <Typography variant="body2">{question2Text}</Typography>
         <Box
           sx={{
             display: "flex",
@@ -253,14 +288,6 @@ export default function Question1() {
                 animation: "blink 1s infinite alternate 0.4s",
               }}
             />
-            {typingBubbleText && (
-              <Typography variant="body2">
-                {question2Text}
-                {question2Text.length < "2. What defines you?".length && (
-                  <span className="typing-cursor">|</span>
-                )}
-              </Typography>
-            )}
           </Box>
         )}
 
@@ -357,6 +384,41 @@ export default function Question1() {
               </Box>
             )}
 
+            {/* Typing Bubble for Q3 */}
+            {isTypingIdentifiedAs && (
+              <Box sx={{ display: "flex", mt: 1, alignItems: "center" }}>
+                <Box
+                  sx={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: "50%",
+                    backgroundColor: "#888",
+                    animation: "blink 1s infinite alternate",
+                    mr: 0.5,
+                  }}
+                />
+                <Box
+                  sx={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: "50%",
+                    backgroundColor: "#888",
+                    animation: "blink 1s infinite alternate 0.2s",
+                    mr: 0.5,
+                  }}
+                />
+                <Box
+                  sx={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: "50%",
+                    backgroundColor: "#888",
+                    animation: "blink 1s infinite alternate 0.4s",
+                  }}
+                />
+              </Box>
+            )}
+
             {/* Selected for Q3 */}
             {identifiedAs && !isTypingIdentifiedAs && (
               <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
@@ -380,57 +442,60 @@ export default function Question1() {
           </>
         )}
 
-        {/* Thank you + Start Assessment */}
-        {showThankYou && !isTypingIdentifiedAs && showQuestion3 && (
+        {/* Thank you message with typing animation */}
+        {showThankYou && (
           <>
             <Typography
               variant="body2"
               sx={{ mt: 3, mb: 2, opacity: 0.7, fontSize: "0.85rem" }}
             >
-              Thank you {userName}, let’s begin with the assessment and also
-              click on the info icon if you want to learn more about it.
+              {thankYouText}
+              {isTypingThankYou && <span className="typing-cursor">|</span>}
             </Typography>
 
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <Tooltip title="Learn more about the assessment">
-                <IconButton
-                  onClick={handleInfoClick}
+            {/* Assessment button and info icon, shown only after thank you message is typed */}
+            {showAssessmentButton && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Tooltip title="Learn more about the assessment">
+                  <IconButton
+                    onClick={handleInfoClick}
+                    sx={{
+                      backgroundColor: "#444",
+                      color: "#fff",
+                      "&:hover": {
+                        backgroundColor: "#666",
+                      },
+                    }}
+                  >
+                    <InfoOutlinedIcon />
+                  </IconButton>
+                </Tooltip>
+
+                <Button
+                  variant="contained"
                   sx={{
-                    backgroundColor: "#444",
+                    background: "linear-gradient(to right, #1e3a8a, #1e40af)",
                     color: "#fff",
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
+                    px: 12,
+                    borderRadius: 2,
                     "&:hover": {
-                      backgroundColor: "#666",
+                      background: "#666",
                     },
                   }}
+                  onClick={() => navigate("/assessmentonboardingcard")}
                 >
-                  <InfoOutlinedIcon />
-                </IconButton>
-              </Tooltip>
-
-              <Button
-                variant="contained"
-                sx={{
-                  background: "linear-gradient(to right, #1e3a8a, #1e40af)",
-                  color: "#fff",
-                  fontWeight: "bold",
-                  textTransform: "uppercase",
-                  px: 12,
-                  borderRadius: 2,
-                  "&:hover": {
-                    background: "#666",
-                  },
-                }}
-                onClick={() => navigate("/assessmentonboardingcard")}
-              >
-                Start Assessment
-              </Button>
-            </Box>
+                  Start Assessment
+                </Button>
+              </Box>
+            )}
           </>
         )}
       </Card>
@@ -468,6 +533,11 @@ export default function Question1() {
           },
           "#root": {
             height: "100%",
+          },
+          ".typing-cursor": {
+            // Added for the blinking cursor
+            display: "inline-block",
+            animation: "blink 1s infinite",
           },
         }}
       />
